@@ -22,12 +22,3 @@ target 'hello_detox' do
     flipper_post_install(installer)
   end
 end
-
-target 'hello_detox-tvOS' do
-  # Pods for hello_detox-tvOS
-
-  target 'hello_detox-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
