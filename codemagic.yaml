@@ -4,44 +4,24 @@
 workflows:
     react-native:
         name: React Native App
+        environment:
+            vars:
+                XCODE_WORKSPACE: "{{ ADD WORKSPACE NAME HERE }}"
+                XCODE_SCHEME: "{{ ADD SCHEME NAME HERE }}"
+            node: latest
         scripts:
-            - name: Install npm dependencies
-              script: |
-                npm install
-            - name: Install detox dependencies
-              script: |
-                brew tap wix/brew
-            - name: Install detox-cli
-              script: |
-                npm install -g detox-cli
-            - name: Set Android SDK location
-              script: |
-                echo "sdk.dir=$HOME/programs/android-sdk-macosx" > "$FCI_BUILD_DIR/android/local.properties"
-            - name: Generate debug keystore
-            script: |
-              rm -f ~/.android/debug.keystore
-              keytool -genkeypair \
-                -alias androiddebugkey \
-                -keypass android \
-                -keystore $FCI_BUILD_DIR/app/debug.keystore \
-                -storepass android \
-                -dname 'CN=Android Debug,O=Android,C=US' \
-                -keyalg 'RSA' \
-                -keysize 2048 \
-                -validity 10000
-            - name: Build with Detox
-              script: |
-                detox build -c android.emu.debug
-            - name: Test with Detox
-              script: |
-                detox test -c android.emu.debug
-            - name: Build Android debug
-              script: |
+            - npm install
+            - echo "sdk.dir=$HOME/programs/android-sdk-macosx" > "$FCI_BUILD_DIR/android/local.properties"
+            - |
+                # build Android
                 cd android
                 ./gradlew assembleDebug
+            - |
+                # build iOS
+                cd ios
+                pod install
+                xcodebuild build -workspace "$XCODE_WORKSPACE.xcworkspace" -scheme "$XCODE_SCHEME" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
         artifacts:
             - android/app/build/outputs/**/*.apk
-        publishing:
-            email:
-                recipients:
-                    - sbis1999@gmail.com
+            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
