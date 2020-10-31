@@ -1,0 +1,133 @@
+workflows:
+    # ios-workflow:
+    #     name: iOS Workflow
+    #     environment:
+    #         vars:
+    #             XCODE_WORKSPACE: "detoxer.xcworkspace" # <-- Put the name of your Xcode workspace here
+    #             XCODE_SCHEME: "detoxer" # <-- Put the name of your Xcode scheme here
+    #             # Automatic Code Signing 
+    #             # https://docs.codemagic.io/yaml/distribution/
+    #             # https://appstoreconnect.apple.com/access/api
+    #             APP_STORE_CONNECT_ISSUER_ID: 5a451239-51eb-10b6-bfcc-60e61ddab13c # <-- Put your App Store Connect Issuer Id here
+    #             APP_STORE_CONNECT_KEY_IDENTIFIER: LY55E1G322 # <-- Put your App Store Connect Key Identifier here
+    #             APP_STORE_CONNECT_PRIVATE_KEY: Encrypted(...) # <-- Put your App Store Connect Private Key here
+    #             CERTIFICATE_PRIVATE_KEY: Encrypted(...) # <-- Put your Certificate Private key here
+    #         node: latest
+    #         xcode: latest
+    #         cocoapods: default
+    #     triggering:
+    #         events:
+    #             - push
+    #         branch_patterns:
+    #             - pattern: develop
+    #               include: true
+    #               source: true        
+    #     scripts:
+    #         - name: Install npm dependencies
+    #           script: |
+    #             npm install
+    #         - name: Install detox dependencies
+    #           script: |
+    #             brew tap wix/brew
+    #             brew install applesimutils
+    #         - name: Install detox-cli
+    #           script: |
+    #             npm install -g detox-cli
+    #         - name: Install CocoaPods dependencies
+    #           script: |
+    #             cd ios && pod install
+    #         - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
+    #           script: |
+    #             keychain initialize
+    #         - name: 
+    #           script: |
+    #             # update your bundle id below!
+    #             app-store-connect fetch-signing-files "io.codemagic.detoxer" --type IOS_APP_STORE --create 
+    #         - name: Use system default keychain
+    #           script: |
+    #             keychain add-certificates
+    #         - name: Increment build number
+    #           script: |
+    #             #!/bin/sh
+    #             set -e
+    #             set -x
+    #             cd $FCI_BUILD_DIR/ios
+    #             agvtool new-version -all $(($BUILD_NUMBER + 1))
+    #         - name: Set up code signing settings on Xcode project
+    #           script: |
+    #             xcode-project use-profiles
+    #         - name: Build with Detox
+    #           script: |
+    #             #!/bin/sh
+    #             set -e
+    #             set -x
+    #             detox build -c ios.sim.release -l verbose
+    #         - name: Test with Detox
+    #           script: |
+    #             #!/bin/sh
+    #             set -e
+    #             set -x
+    #             detox test -c ios.sim.release -l verbose
+    #         - name: Build ipa for distribution
+    #           script: |
+    #             xcode-project build-ipa --workspace "$FCI_BUILD_DIR/ios/$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+    #     artifacts:
+    #         - build/ios/ipa/*.ipa
+    #         - /tmp/xcodebuild_logs/*.log
+    #         - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+    #         - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM 
+    #     publishing:
+    #         email:
+    #             recipients:
+    #                 - sbis1999@gmail.com
+    android-workflow:
+        name: Android Detox
+        # environment:
+        #     vars:
+        #         # Android Keystore environment variables
+        #         CM_KEYSTORE: Encrypted(...) # <-- Put your encrypted keystore file here
+        #         CM_KEYSTORE_PASSWORD: Encrypted(...) # <-- Put your encrypted keystore password here
+        #         CM_KEY_ALIAS_PASSWORD: Encrypted(...) # <-- Put your encrypted keystore alias password here
+        #         CM_KEY_ALIAS_USERNAME: Encrypted(...) # <-- Put your encrypted keystore alias username here  
+        #     node: latest
+        scripts:
+            - name: Install npm dependencies
+              script: |
+                npm install
+            - name: Install detox dependencies
+              script: |
+                brew tap wix/brew
+            - name: Install detox-cli
+              script: |
+                npm install -g detox-cli
+            - name: Set Android SDK location
+              script: |
+                echo "sdk.dir=$HOME/programs/android-sdk-macosx" > "$FCI_BUILD_DIR/android/local.properties"
+            - name: Generate debug keystore
+            script: |
+              rm -f ~/.android/debug.keystore
+              keytool -genkeypair \
+                -alias androiddebugkey \
+                -keypass android \
+                -keystore $FCI_BUILD_DIR/app/debug.keystore \
+                -storepass android \
+                -dname 'CN=Android Debug,O=Android,C=US' \
+                -keyalg 'RSA' \
+                -keysize 2048 \
+                -validity 10000
+            - name: Build with Detox
+              script: |
+                detox build -c android.emu.debug
+            - name: Test with Detox
+              script: |
+                detox test -c android.emu.debug
+            - name: Build Android debug
+              script: |
+                cd android
+                ./gradlew assembleDebug
+        artifacts:
+            - android/app/build/outputs/**/*.apk
+        publishing:
+            email:
+                recipients:
+                    - sbis1999@gmail.com
