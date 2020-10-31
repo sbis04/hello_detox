@@ -21,7 +21,6 @@ workflows:
           echo "sdk.dir=$HOME/programs/android-sdk-macosx" > "$FCI_BUILD_DIR/android/local.properties"
       - name: Generate debug keystore
         script: |
-          rm -f ~/.android/debug.keystore
           keytool -genkeypair \
             -alias androiddebugkey \
             -keypass android \
