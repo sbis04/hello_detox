@@ -154,6 +154,19 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+                if (System.getenv()["CI"]) {
+                    storeFile file('/tmp/keystore.keystore')
+                    storePassword System.getenv()['CM_KEYSTORE_PASSWORD']
+                    keyAlias System.getenv()['CM_KEY_ALIAS_USERNAME']
+                    keyPassword System.getenv()['CM_KEY_ALIAS_PASSWORD']
+                } else {
+                    storeFile file("../../keys/codemagic.keystore")
+                    storePassword System.getenv()['CM_KEYSTORE_PASSWORD']
+                    keyAlias System.getenv()['CM_KEY_ALIAS_USERNAME']
+                    keyPassword System.getenv()['CM_KEY_ALIAS_PASSWORD']
+                }
+        }
     }
     buildTypes {
         debug {
