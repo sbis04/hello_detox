@@ -5,14 +5,14 @@
     "ios.sim.debug": {
       "type": "ios.simulator",
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/hello_detox.app",
-      "build": "xcodebuild -workspace ios/hello_detox.xcworkspace -scheme hello_detox -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build EXCLUDED_ARCHS=arm64",
+      "build": "xcodebuild -workspace ios/hello_detox.xcworkspace -scheme hello_detox -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build",
       "device": {
         "type": "iPhone 11"
       }
     },
     "ios.sim.release": {
       "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/hello_detox.app",
-      "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/hello_detox.xcworkspace -UseNewBuildSystem=YES -scheme hello_detox -configuration Release -sdk iphonesimulator -derivedDataPath ios/build EXCLUDED_ARCHS=arm64",
+      "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/hello_detox.xcworkspace -UseNewBuildSystem=YES -scheme hello_detox -configuration Release -sdk iphonesimulator -derivedDataPath ios/build",
       "type": "ios.simulator",
       "device": {
         "type": "iPhone 11"
