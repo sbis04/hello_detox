@@ -92,7 +92,10 @@ workflows:
             xcode-project use-profiles
         - name: Build with Detox
           script: |
-            detox build -c ios.sim.release
+            #!/bin/sh
+            set -e
+            set -x
+            detox build -c ios.sim.release -l verbose
         - name: Test with Detox
           script: |
             detox test -c ios.sim.release
