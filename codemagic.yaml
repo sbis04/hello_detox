@@ -73,38 +73,29 @@ workflows:
         - name: Install CocoaPods dependencies
           script: |
             cd ios && pod install
-        - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
+        - name: Set up keychain
           script: |
             keychain initialize
-        - name: 
+        - name: Set up provisioning profiles
           script: |
-            # update your bundle id below!
-            app-store-connect fetch-signing-files "io.codemagic.detoxer" --type IOS_APP_STORE --create 
-        - name: Use system default keychain
+            PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+            mkdir -p "$PROFILES_HOME"
+            PROFILE_PATH="$(mktemp "$PROFILES_HOME"/$(uuidgen).mobileprovision)"
+            echo ${CM_PROVISIONING_PROFILE} | base64 --decode > $PROFILE_PATH
+            echo "Saved provisioning profile $PROFILE_PATH"
+        - name: Set up signing certificate
           script: |
-            keychain add-certificates
-        - name: Increment build number
-          script: |
-            #!/bin/sh
-            set -e
-            set -x
-            cd $FCI_BUILD_DIR/ios
-            agvtool new-version -all $(($BUILD_NUMBER + 1))
+            echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+            keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CM_CERTIFICATE_PASSWORD
         - name: Set up code signing settings on Xcode project
           script: |
             xcode-project use-profiles
         - name: Build with Detox
           script: |
-            #!/bin/sh
-            set -e
-            set -x
-            detox build -c ios.sim.release -l verbose
+            detox build -c ios.sim.release
         - name: Test with Detox
           script: |
-            #!/bin/sh
-            set -e
-            set -x
-            detox test -c ios.sim.release -l verbose
+            detox test -c ios.sim.release
         - name: Build ipa for distribution
           script: |
             xcode-project build-ipa --workspace "$FCI_BUILD_DIR/ios/$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
@@ -116,5 +107,4 @@ workflows:
     publishing:
         email:
             recipients:
-                - user1@example.com
-                - user2@example.com
+                - sbis1999@gmail.com
