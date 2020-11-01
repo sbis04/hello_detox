@@ -15,7 +15,7 @@ workflows:
     scripts:
       - name: Install npm dependencies
         script: |
-          npm Install
+          npm install
       - name: Install detox dependencies
         script: |
           brew tap wix/brew
