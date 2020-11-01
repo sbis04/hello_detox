@@ -11,7 +11,7 @@
       }
     },
     "ios.sim.release": {
-      "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/detoxer.app",
+      "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/hello_detox.app",
       "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/hello_detox.xcworkspace -UseNewBuildSystem=YES -scheme hello_detox -configuration Release -sdk iphonesimulator -derivedDataPath ios/build",
       "type": "ios.simulator",
       "device": {
