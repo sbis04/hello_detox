@@ -1,6 +1,6 @@
 # Hello Detox
 
-A sample app for React Native [Detox](https://github.com/wix/Detox) testing.
+A sample app for React Native [Detox](https://github.com/wix/Detox) testing, and running them on Codemagic.
 
 ## Codemagic YAML template
 
